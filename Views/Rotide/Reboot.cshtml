@@ -1,0 +1,16 @@
+﻿<p id="rbMessage">Rebooting instance..</p>
+
+@section scripts{
+<script>
+    if (confirm("Are you sure you want to reboot the instance?")) {
+        setTimeout(function () {
+            $.post("/Rotide/RebootInstance", {}, function (data) {
+                console.log(data);
+            });
+        }, 3000);
+    }
+    else {
+        $("#rbMessage").text("Reboot denied!");
+    }
+</script>
+}
