@@ -1,0 +1,37 @@
+﻿﻿@{
+    ViewData["Title"] = "Rotide";
+}
+
+<h2>Rotide code editoR</h2>
+<input id="filePath" type="text">
+<button id="openFile" onclick="OpenFile()">Open file</button>
+<div class="fileTree"></div>
+<textarea id="textInput"></textarea>
+
+@section scripts{
+<script src="~/js/jQueryFileTree.js"></script>
+<script>
+    function OpenFile() {
+        var filePath = $("#filePath").val();
+        $.get("/Rotide/GetFileContents?filePath=" + filePath, function (data) {
+            $("#textInput").val(data);
+        });
+    }
+    
+    $(document).ready(function () {
+        $(".fileTree").fileTree({ script: "/Rotide/GetFiles" }, function (file) {
+            LoadFile(file);
+        });
+
+        document.getElementById("textInput").style.height = "300px";
+        document.getElementById("textInput").style.width = "300px";
+    });
+    
+    function LoadFile(file) {
+        $.get("/Rotide/GetFileContents", { filepath: file }, function (data) { 
+            console.log(data);
+            $("#textInput").val(data.content);
+        });
+    }
+</script>
+}
