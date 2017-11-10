@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using webZoneCore.ViewModels;
 using System.Net;
+using System.Text;
+using webZone.Models;
 
 namespace webZoneCore.Controllers
 {
@@ -88,6 +91,23 @@ namespace webZoneCore.Controllers
             };
 
             return Json(retObj);
+        }
+
+        [HttpPost]
+        public IActionResult SaveFileContents([FromBody]RotideFile file)
+        {
+            string filePath = $"{Directory.GetCurrentDirectory()}{file.FilePath}";
+            filePath = filePath.Replace(@"/", @"\");
+
+            try
+            {
+                System.IO.File.WriteAllBytes(filePath, Encoding.ASCII.GetBytes(file.FileContents));
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
         }
 
         [HttpPost]
