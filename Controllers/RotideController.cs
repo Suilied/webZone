@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using webZoneCore.ViewModels;
 using System.Net;
 using System.Text;
@@ -97,7 +98,10 @@ namespace webZoneCore.Controllers
         public IActionResult SaveFileContents([FromBody]RotideFile file)
         {
             string filePath = $"{Directory.GetCurrentDirectory()}{file.FilePath}";
-            filePath = filePath.Replace(@"/", @"\");
+            filePath = filePath.Replace(@"/", @"\"); // this works on ubuntu, not sure about win and osx
+
+            if( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) )
+                return Json(new { success = false });
 
             try
             {
