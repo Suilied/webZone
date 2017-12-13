@@ -8,6 +8,8 @@ using webZoneCore.ViewModels;
 using System.Net;
 using System.Text;
 using webZone.Models;
+using webZone.Database.Models;
+using webZone.Database;
 
 namespace webZoneCore.Controllers
 {
@@ -15,7 +17,6 @@ namespace webZoneCore.Controllers
     {
         public IActionResult Index()
         {
-            // TODO: load document tree
             return View();
         }
 
@@ -117,8 +118,15 @@ namespace webZoneCore.Controllers
         [HttpPost]
         public IActionResult RebootInstance()
         {
-            Environment.Exit(1);
-            return Json(new { message = "rebuilding and restarting app.." });
+            //Environment.Exit(1);
+
+            RotideSettings settings = null;
+            using (CoreDal db = new CoreDal())
+            {
+                settings = db.rotideSettings.First();
+            }
+
+            return Json(new { message = "rebuilding and restarting app..", rtSettings = settings.projectFolder });
         }
 
         public IActionResult Reboot()
