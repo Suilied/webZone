@@ -121,7 +121,7 @@ namespace webZoneCore.Controllers
             //Environment.Exit(1);
 
             RotideSettings settings = null;
-            using (CoreDal db = new CoreDal())
+            using (CoreDal db = CoreDal.Create())
             {
                 settings = db.rotideSettings.First();
             }

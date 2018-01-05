@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using webZone.Database;
 using webZone.Models;
 
 namespace webZone.Controllers
@@ -17,7 +16,13 @@ namespace webZone.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            //ViewData["Message"] = "Your application description page.";
+
+
+            using(PsqlDal db = PsqlDal.Create()){
+                var allprojects = db.projects.FirstOrDefault();
+                Console.WriteLine(allprojects.ToString());
+            }
 
             return View();
         }

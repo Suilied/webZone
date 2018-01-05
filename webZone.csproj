@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="Npgsql" Version="3.2.6" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,5 +17,8 @@
   <ItemGroup>
     <Folder Include="Database\" />
     <Folder Include="Database\Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Database\Models\ApplicationUser.cs" />
   </ItemGroup>
 </Project>

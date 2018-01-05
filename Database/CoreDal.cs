@@ -1,18 +1,30 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using webZone.Database.Models;
 
 namespace webZone.Database
 {
     public class CoreDal : DbContext
     {
-        // Connectionstring
-        // "server=146.185.158.204;userid=azmo;pwd=furioso;port=3306;database=webZone;sslmode=none;"
+        private static DbContextOptions<CoreDal> _options;
 
         public DbSet<RotideSettings> rotideSettings { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
-            optionsBuilder.UseSqlServer("server=146.185.158.204;userid=azmo;pwd=furioso;port=3306;database=webZone;sslmode=none;");
+        public CoreDal(DbContextOptions<CoreDal> options) : base(options) { _options = options; }
+
+        protected override void OnModelCreating(ModelBuilder builder){
+            builder.Entity<RotideSettings>().HasKey(mn => mn.rotideSettingsId);
+
+            base.OnModelCreating(builder);
+        }
+
+        public static CoreDal Create(){
+            if(_options == null){
+                string connectionString = Global.Configuration["Database:SqlConnectionString"];
+                DbContextOptionsBuilder<CoreDal> newOptions = new DbContextOptionsBuilder<CoreDal>();
+                newOptions.UseSqlServer(connectionString);
+                return new CoreDal(newOptions.Options);
+            }
+            return new CoreDal(_options);
         }
 
     }
