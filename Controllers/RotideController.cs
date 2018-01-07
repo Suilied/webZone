@@ -24,11 +24,10 @@ namespace webZoneCore.Controllers
         public virtual ActionResult GetFiles(string dir)
         {
 
-            //const string baseDir = @"/App_Data/userfiles/";
             string baseDir = Directory.GetCurrentDirectory();
 
             dir = WebUtility.UrlDecode(dir);
-            string realDir = $"{baseDir}/{dir}"; //WebUtility.MapPath(baseDir + dir);
+            string realDir = $"{baseDir}/{dir}";
 
             //validate to not go above basedir
             if (!realDir.StartsWith(baseDir))
