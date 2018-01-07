@@ -14,11 +14,12 @@ namespace webZone.Controllers
     public class ImpulseController : Controller
     {
         // GET: /<controller>/
-        public IActionResult Index()
+        public IActionResult Index( string projectName )
         {
-            ImpulseViewModel viewModel = new ImpulseViewModel();
+            if (projectName == null)
+                return View();
 
-            string projectName = "test";
+            ImpulseViewModel viewModel = new ImpulseViewModel();
 
             using (PsqlDal db = PsqlDal.Create())
             {
@@ -26,7 +27,7 @@ namespace webZone.Controllers
                 viewModel.projectFiles = db.projectFiles.Where(x => x.projectId == viewModel.project.projectId).ToList();
             }
 
-            return View();
+            return View(viewModel);
         }
     }
 }

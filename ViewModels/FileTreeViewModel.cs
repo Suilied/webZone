@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace webZoneCore.ViewModels
+namespace webZone.ViewModels
 {
     public class FileTreeViewModel
     {

@@ -1,28 +1,28 @@
-﻿@model webZoneCore.ViewModels.ImpulseViewModel
-
-<!--@{
-    string projectFolder = "test";
-    List<string> projectFiles = new List<string>();
-    projectFiles.push("test.js");
-}-->
-
-@if(model.project == null){
-    <p>Error, no project</p>
+﻿@{
+    Layout = null;
 }
 
-@if(model.files == null){
-    <p>Error, no files</p>
+@model webZone.ViewModels.ImpulseViewModel
+
+@if(Model == null){
+    <h1>No project selected.</h1>
 }
-
-<div>
-    Impulse view engine
-</div>
-
-@section scripts {
+else{
     <script src="~/phaser/phaser.js"></script>
-    @foreach(string file in model.projectFiles){
+    foreach(var file in Model.projectFiles){
         if(file.type == "javascript"){
-            <script src="~/projects/@(model.project.rootFolder)/@(file)"></script>
+            <script src="~/projects/@(Model.project.rootFolder)/@(file.name)"></script>
         }
     }
 }
+
+@*
+@section scripts {
+    <script src="~/phaser/phaser.js"></script>
+    @foreach(var file in Model.projectFiles){
+        if(file.type == "javascript"){
+            <script src="~/projects/@(Model.project.rootFolder)/@(file.name)"></script>
+        }
+    }
+}
+*@

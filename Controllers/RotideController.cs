@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using webZoneCore.ViewModels;
+using webZone.ViewModels;
 using System.Net;
 using System.Text;
 using webZone.Models;
