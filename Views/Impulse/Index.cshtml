@@ -1,0 +1,28 @@
+﻿@model webZoneCore.ViewModels.ImpulseViewModel
+
+<!--@{
+    string projectFolder = "test";
+    List<string> projectFiles = new List<string>();
+    projectFiles.push("test.js");
+}-->
+
+@if(model.project == null){
+    <p>Error, no project</p>
+}
+
+@if(model.files == null){
+    <p>Error, no files</p>
+}
+
+<div>
+    Impulse view engine
+</div>
+
+@section scripts {
+    <script src="~/phaser/phaser.js"></script>
+    @foreach(string file in model.projectFiles){
+        if(file.type == "javascript"){
+            <script src="~/projects/@(model.project.rootFolder)/@(file)"></script>
+        }
+    }
+}

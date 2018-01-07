@@ -9,6 +9,7 @@ namespace webZone.Database
         private static DbContextOptions<PsqlDal> _options;
 
         public DbSet<Project> projects { get; set; }
+        public DbSet<ProjectFile> projectFiles { get; set; }
 
         public PsqlDal(DbContextOptions<PsqlDal> options) : base(options) { _options = options; }
 
@@ -19,6 +20,7 @@ namespace webZone.Database
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<Project>().HasKey(m => m.projectId);
+            builder.Entity<ProjectFile>().HasKey(m => m.projectFileId);
 
             base.OnModelCreating(builder);
         }

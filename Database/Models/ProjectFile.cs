@@ -3,14 +3,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace webZone.Database.Models
 {
-    public class Project
+    public class ProjectFile
     {
         [Key]
-        public int projectId { get; set; }
+        public int projectFileId { get; set; }
 
         public string name { get; set; }
 
-        public string rootFolder { get; set; }
+        public string type { get; set; }
 
+        public int projectId { get; set; }
     }
 }

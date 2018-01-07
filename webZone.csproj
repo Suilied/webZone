@@ -17,6 +17,9 @@
   <ItemGroup>
     <Folder Include="Database\" />
     <Folder Include="Database\Models\" />
+    <Folder Include="wwwroot\projects\" />
+    <Folder Include="wwwroot\projects\test\" />
+    <Folder Include="Views\Impulse\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Database\Models\ApplicationUser.cs" />
