@@ -16,8 +16,10 @@ namespace webZone.Controllers
         // GET: /<controller>/
         public IActionResult Index( string projectName )
         {
-            if (projectName == null)
-                return View();
+            if (projectName == null){
+                //return View();
+                projectName = Global.Configuration["Impulse:DefaultProject"];
+            }
 
             ImpulseViewModel viewModel = new ImpulseViewModel();
 
