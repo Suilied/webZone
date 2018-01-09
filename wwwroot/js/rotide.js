@@ -8,11 +8,12 @@ function OpenFile() {
     $.get("/Rotide/GetFileContents?filePath=" + filePath,
         function(data) {
             $("#textInput").val(data);
-        });
+        }
+    );
 }
 
 $(document).ready(function() {
-    //BuildFileTree();
+    BuildFileTree();
 
     gRotideElement = document.getElementById("textInput");
     gRotide = CodeMirror.fromTextArea(gRotideElement, {
@@ -24,7 +25,7 @@ $(document).ready(function() {
     gRotide.setSize(-1, rotideHeight);
 });
 
-$("select.project-selector").onchange = function(){
+$(".project-selector").on("change", function(){
     // call GetProject with the correct params
     console.log("Great value:", this.value);
 });
@@ -50,6 +51,7 @@ function BuildFileTree() {
 }
 
 function LoadFile(file) {
+    console.log("am I getting called?");
     if (!HasValidExtension(file))
         return;
 

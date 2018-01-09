@@ -15,6 +15,8 @@ namespace webZoneCore.Controllers
 {
     public class RotideController : Controller
     {
+        private static string _rootFolder = "wwwroot/projects";
+
         public IActionResult Index()
         {
             RotideViewModel viewModel = new RotideViewModel();
@@ -33,7 +35,7 @@ namespace webZoneCore.Controllers
             string baseDir = Directory.GetCurrentDirectory();
 
             dir = WebUtility.UrlDecode(dir);
-            string realDir = $"{baseDir}/{dir}";
+            string realDir = $"{baseDir}/{_rootFolder}{dir}";
 
             //validate to not go above basedir
             if (!realDir.StartsWith(baseDir))
@@ -59,36 +61,9 @@ namespace webZoneCore.Controllers
             return PartialView("~/Views/Rotide/FileTree.cshtml", files);
         }
 
-        public IActionResult GetAllFiles()
-        {
-            var someDir = new DirectoryInfo("./");
-            var directories = someDir.GetDirectories();
-            var files = someDir.GetFiles();
-
-            List<string> dirItems = new List<string>();
-
-            foreach (var dir in directories)
-            {
-                dirItems.Add(dir.Name);
-            }
-
-            foreach (var file in files)
-            {
-                dirItems.Add(file.Name);
-            }
-
-            var retObj = new
-            {
-                path = Directory.GetCurrentDirectory(),
-                items = dirItems
-            };
-
-            return Json(retObj);
-        }
-
         public IActionResult GetFileContents(string filepath)
         {
-            string filePath = $"{Directory.GetCurrentDirectory()}{filepath}";
+            string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}{filepath}";
             var content = System.IO.File.ReadAllText(filePath);
 
             var retObj = new

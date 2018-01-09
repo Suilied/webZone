@@ -20,16 +20,24 @@
     .rotide-editor {
         width: 100%;
     }
+
+    .project-selector {
+        left: 200px;
+    }
 </style>
 
 <div class="container body-content body-rotide">
     <div class="row">
-        <select>
-            @foreach(var project in Model.projects)
-            {
-                <option value="@project.name">@project.name</option>
-            }
-        </select>
+        <div class="col-sm"></div>
+        <div class="col-sm">
+            <select class="select project-selector">
+                @foreach(var project in Model.projects)
+                {
+                    <option value="@project.name">@project.name</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm"></div>
     </div>
     
     <div class="row">
