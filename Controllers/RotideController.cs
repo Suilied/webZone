@@ -17,7 +17,13 @@ namespace webZoneCore.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            RotideViewModel viewModel = new RotideViewModel();
+
+            using(PsqlDal db = PsqlDal.Create()) {
+                viewModel.projects = db.projects.ToList();
+            }
+
+            return View(viewModel);
         }
 
         [HttpPost]

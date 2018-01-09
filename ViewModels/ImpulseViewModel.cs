@@ -8,5 +8,6 @@ namespace webZone.ViewModels
     {
         public Project project { get; set; }
         public List<ProjectFile> projectFiles { get; set; }
+        //public bool debugMode { get; set; } = false;
     }
 }
