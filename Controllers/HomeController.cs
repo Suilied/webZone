@@ -16,9 +16,6 @@ namespace webZone.Controllers
 
         public IActionResult About()
         {
-            //ViewData["Message"] = "Your application description page.";
-
-
             using(PsqlDal db = PsqlDal.Create()){
                 var allprojects = db.projects.FirstOrDefault();
                 Console.WriteLine(allprojects.ToString());

@@ -6,11 +6,11 @@
 
 <link rel="stylesheet" href="css/codemirror.css"/>
 <link rel="stylesheet" href="css/monokai.css"/>
+
+@* Extra styling *@
 <style>
-    .body-rotide {
-        width: 100%;
-        margin: 0;
-        padding: 0;
+    body {
+        padding:0;
     }
 
     .fileTree {
@@ -20,40 +20,37 @@
     .rotide-editor {
         width: 100%;
     }
-
-    .project-selector {
-        left: 200px;
-    }
 </style>
 
-<div class="container body-content body-rotide">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-sm"></div>
-        <div class="col-sm">
-            <select class="select project-selector">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="ddmProjectSelect"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select project
+            </button>
+            <div class="dropdown-menu" aria-labelledby="ddmProjectSelect">
                 @foreach(var project in Model.projects)
                 {
-                    <option value="@project.name">@project.name</option>
+                    <a class="dropdown-menu" href="#">@project.name</a>
                 }
-            </select>
+            </div>
         </div>
-        <div class="col-sm"></div>
     </div>
     
     <div class="row">
-        <div>
+        <div class="col-lg-2 offset-1">
             <div class="fileTree"></div>
         </div>
-        <div class="col-lg-offset-3 col-lg-9">
+        <div class="col-lg-9">
             <textarea id="textInput" class="rotide-editor"></textarea>
         </div>
     </div>
     
     <div class="row">
-        <div class="col-lg-offset-4 col-lg-4">
+        <div class="col-lg">
             <input id="filePath" type="text">
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg">
             <button onclick="SaveFile()">Save file</button>
         </div>
     </div>
