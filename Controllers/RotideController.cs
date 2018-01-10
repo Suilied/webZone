@@ -78,11 +78,12 @@ namespace webZoneCore.Controllers
         [HttpPost]
         public IActionResult SaveFileContents([FromBody]RotideFile file)
         {
-            string filePath = $"{Directory.GetCurrentDirectory()}{file.FilePath}";
-            filePath = filePath.Replace(@"/", @"\"); // this works on ubuntu, not sure about win and osx
+            string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}{file.FilePath}";
 
-            if( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) )
-                return Json(new { success = false });
+            if( !RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ) {
+                // Fix filepaths for Ubuntu & Win
+                filePath = filePath.Replace(@"/", @"\");
+            }
 
             try
             {
