@@ -80,7 +80,7 @@ namespace webZoneCore.Controllers
         {
             string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}{file.FilePath}";
 
-            if( !RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ) {
+            if( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ) {
                 // Fix filepaths for Ubuntu & Win
                 filePath = filePath.Replace(@"/", @"\");
             }
