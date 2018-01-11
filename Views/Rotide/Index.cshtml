@@ -6,21 +6,22 @@
 
 <link rel="stylesheet" href="css/codemirror.css"/>
 <link rel="stylesheet" href="css/monokai.css"/>
+<link rel="stylesheet" href="css/rotide.css"/>
 
-@* Extra styling *@
-<style>
-    body {
-        padding:0;
-    }
+@* Context-menu Directories *@
+<div id="ctxMenuDir" hidden>
+    <ul class="items">
+        <li>Add new file</li>
+    </ul>
+</div>
 
-    .fileTree {
-        border: black solid 1px;
-    }
-
-    .rotide-editor {
-        width: 100%;
-    }
-</style>
+@* Context-menu Files *@
+<div id="ctxMenuFile" hidden>
+    <ul class="items">
+        <li>Duplicate</li>
+        <li>Remove file</li>
+    </ul>
+</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -38,10 +39,10 @@
     </div>
     
     <div class="row">
-        <div class="col-lg-2 offset-1">
+        <div class="col-lg-2">
             <div class="fileTree"></div>
         </div>
-        <div class="col-lg-9">
+        <div class="col-lg-10">
             <textarea id="textInput" class="rotide-editor"></textarea>
         </div>
     </div>

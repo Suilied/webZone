@@ -23,12 +23,41 @@ $(document).ready(function() {
     });
     var rotideHeight = $(window).height() - 150; // TODO: find a better way to set the height of the editor window
     gRotide.setSize(-1, rotideHeight);
+
+    BindContextMenu();
 });
 
+
+// Drop down menu handler
 $(".project-selector").on("change", function(){
     // call GetProject with the correct params
     console.log("Great value:", this.value);
 });
+
+// Right-click context menu handler
+function BindContextMenu(){
+    console.log($("li.directory > a"));
+    $("li.directory > a").bind("contextmenu",function(e){
+        e.preventDefault();
+        console.log(e.pageX + "," + e.pageY);
+        $("#ctxMenuDir").css("left",e.pageX);
+        $("#ctxMenuDir").css("top",e.pageY);
+        // $("#ctxMenuDir").hide(100);
+        $("#ctxMenuDir").fadeIn(200,startFocusOut());
+    });
+}
+
+function startFocusOut(){
+    $(document).on("click",function(){
+        $("#ctxMenuDir").hide();
+        $(document).off("click");
+    });
+}
+
+$(".items > li").click(function(){
+    $("#op").text("You have selected "+$(this).text());
+});
+
 
 function GetProject(projectName) {
     $.ajax({
@@ -36,28 +65,29 @@ function GetProject(projectName) {
         url: "/Rotide/GetProject",
         data: { name: projectName },
         contentType: "application/json",
-        success: function (data) {
+        success: (data) => {
             console.log(data);
         }
     });
 }
 
 function BuildFileTree() {
+    // Build filetree with LoadFile as lmb-click event handler
     $(".fileTree").fileTree(
         { script: "/Rotide/GetFiles" },
-        function(file) {
+        (file) => {
             LoadFile(file);
-        });
+        }
+    );
 }
 
 function LoadFile(file) {
-    console.log("am I getting called?");
     if (!HasValidExtension(file))
         return;
 
     $.get("/Rotide/GetFileContents",
         { filepath: file },
-        function (data) {
+        (data) => {
             gLoadedFile = file;
             gRotide.setValue(data.content);
             gRotide.setOption("mode", GetModeFromExtension(file));
@@ -77,7 +107,7 @@ function SaveFile() {
         url: "/Rotide/SaveFileContents",
         data: data,
         contentType: "application/json",
-        success: function (data) {
+        success: (data) => {
             console.log(data);
         }
     });

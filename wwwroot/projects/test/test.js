@@ -1,4 +1,4 @@
-﻿var TestGame = {};
+var TestGame = {};
 
 TestGame.Main = function(game){};
 TestGame.Main.Prototype = {
@@ -11,7 +11,7 @@ TestGame.Main.Prototype = {
     },
 
     create: function(){
-        // what is the difference between preload and create?
+        // what is the difference between preload and create? asdasd
     },
 
     update: function(){
