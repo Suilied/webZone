@@ -23,16 +23,17 @@ $(document).ready(function() {
     });
     var rotideHeight = $(window).height() - 150; // TODO: find a better way to set the height of the editor window
     gRotide.setSize(-1, rotideHeight);
-
     BindContextMenu();
+    BindDropDownMenuAction();
 });
 
 
 // Drop down menu handler
-$(".project-selector").on("change", function(){
-    // call GetProject with the correct params
-    console.log("Great value:", this.value);
-});
+function BindDropDownMenuAction() {
+    $("a.dropdown-item").on("click", function(){
+        console.log(this.innerHTML);
+    });
+}
 
 // Right-click context menu handler
 function BindContextMenu(){
