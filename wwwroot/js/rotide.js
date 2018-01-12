@@ -1,19 +1,10 @@
 ﻿var gRotide = {};
 var gLoadedFile = "";
 var gRotideElement = null;
-var gSelectedProject = null;
-
-function OpenFile() {
-    var filePath = $("#filePath").val();
-    $.get("/Rotide/GetFileContents?filePath=" + filePath,
-        function(data) {
-            $("#textInput").val(data);
-        }
-    );
-}
+var gSelectedProject = "";
 
 $(document).ready(function() {
-    BuildFileTree();
+    //BuildFileTree();
 
     gRotideElement = document.getElementById("textInput");
     gRotide = CodeMirror.fromTextArea(gRotideElement, {
@@ -31,20 +22,22 @@ $(document).ready(function() {
 // Drop down menu handler
 function BindDropDownMenuAction() {
     $("a.dropdown-item").on("click", function(){
-        console.log(this.innerHTML);
+        gSelectedProject = this.innerHTML;
+        BuildFileTree(gSelectedProject);
     });
 }
 
 // Right-click context menu handler
 function BindContextMenu(){
-    console.log($("li.directory > a"));
+    //console.log($("li.directory > a"));
     $("li.directory > a").bind("contextmenu",function(e){
         e.preventDefault();
-        console.log(e.pageX + "," + e.pageY);
-        $("#ctxMenuDir").css("left",e.pageX);
-        $("#ctxMenuDir").css("top",e.pageY);
+        //console.log(e.pageX + "," + e.pageY);
+        const menuDirObj = $("#ctxMenuDir");
+        menuDirObj.css("left",e.pageX);
+        menuDirObj.css("top",e.pageY);
         // $("#ctxMenuDir").hide(100);
-        $("#ctxMenuDir").fadeIn(200,startFocusOut());
+        menuDirObj.fadeIn(200,startFocusOut());
     });
 }
 
@@ -66,17 +59,18 @@ function GetProject(projectName) {
         url: "/Rotide/GetProject",
         data: { name: projectName },
         contentType: "application/json",
-        success: (data) => {
+        success: function(data) {
             console.log(data);
         }
     });
 }
 
-function BuildFileTree() {
+function BuildFileTree(projectName) {
     // Build filetree with LoadFile as lmb-click event handler
     $(".fileTree").fileTree(
-        { script: "/Rotide/GetFiles" },
-        (file) => {
+        { script: "/Rotide/GetFiles", root: projectName},
+        function(file) {
+            //console.log(file);
             LoadFile(file);
         }
     );
@@ -87,18 +81,20 @@ function LoadFile(file) {
         return;
 
     $.get("/Rotide/GetFileContents",
-        { filepath: file },
-        (data) => {
+        { project: gSelectedProject, filepath: file },
+        function(data) {
             gLoadedFile = file;
             gRotide.setValue(data.content);
             gRotide.setOption("mode", GetModeFromExtension(file));
-        });
+        }
+    );
 }
 
 function SaveFile() {
     gRotide.save();
 
     var data = JSON.stringify({
+        Project: gSelectedProject,
         FilePath: gLoadedFile,
         FileContents: gRotide.getTextArea().value
     });
@@ -108,7 +104,7 @@ function SaveFile() {
         url: "/Rotide/SaveFileContents",
         data: data,
         contentType: "application/json",
-        success: (data) => {
+        success: function(data) {
             console.log(data);
         }
     });

@@ -31,10 +31,15 @@ namespace webZoneCore.Controllers
         [HttpPost]
         public virtual ActionResult GetFiles(string dir)
         {
+            // dir isn't actually a directory but the name of a project.
+            using(PsqlDal db = PsqlDal.Create()) {
+                string tempString = db.projects.Where( x => x.name == dir).FirstOrDefault()?.rootFolder ?? "/";
+                dir = "/" + tempString + "/";
+            }
 
             string baseDir = Directory.GetCurrentDirectory();
-
             dir = WebUtility.UrlDecode(dir);
+            
             string realDir = $"{baseDir}/{_rootFolder}{dir}";
 
             //validate to not go above basedir
@@ -61,9 +66,15 @@ namespace webZoneCore.Controllers
             return PartialView("~/Views/Rotide/FileTree.cshtml", files);
         }
 
-        public IActionResult GetFileContents(string filepath)
+        public IActionResult GetFileContents(string project, string filepath)
         {
-            string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}{filepath}";
+            //using (PsqlDal db = PsqlDal.Create())
+            //{
+            //    string tempString = db.projects.Where(x => x.name == project).FirstOrDefault()?.rootFolder ?? "/";
+            //    filepath = "/" + tempString + filepath;
+            //}
+
+            string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath}";
             var content = System.IO.File.ReadAllText(filePath);
 
             var retObj = new
@@ -78,7 +89,7 @@ namespace webZoneCore.Controllers
         [HttpPost]
         public IActionResult SaveFileContents([FromBody]RotideFile file)
         {
-            string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}{file.FilePath}";
+            string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{file.FilePath}";
 
             if( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ) {
                 // Fix filepaths for Ubuntu & Win
