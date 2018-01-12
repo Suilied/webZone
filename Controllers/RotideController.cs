@@ -110,7 +110,6 @@ namespace webZoneCore.Controllers
             {
                 name = aNewProject.projectName,
                 rootFolder = aNewProject.projectRoot
-                // some silly comment
             };
 
             int changesSaved = 0;
