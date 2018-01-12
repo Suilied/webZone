@@ -68,11 +68,7 @@ namespace webZoneCore.Controllers
 
         public IActionResult GetFileContents(string project, string filepath)
         {
-            //using (PsqlDal db = PsqlDal.Create())
-            //{
-            //    string tempString = db.projects.Where(x => x.name == project).FirstOrDefault()?.rootFolder ?? "/";
-            //    filepath = "/" + tempString + filepath;
-            //}
+            // string project isn't used anymore. But might get useful later on
 
             string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath}";
             var content = System.IO.File.ReadAllText(filePath);
@@ -105,6 +101,61 @@ namespace webZoneCore.Controllers
             {
                 return Json(new { success = false });
             }
+        }
+
+        [HttpPost]
+        public IActionResult CreateNewProject([FromBody]RotideNewProject aNewProject)
+        {
+            Project newProject = new Project
+            {
+                name = aNewProject.projectName,
+                rootFolder = aNewProject.projectRoot
+            };
+
+            int changesSaved = 0;
+
+            using (PsqlDal db = PsqlDal.Create())
+            {
+                // TODO: clean the inputs
+                db.projects.Add(newProject);
+                changesSaved = db.SaveChanges();
+            }
+
+            // check if our write was successful
+            if( changesSaved == 1)
+            {
+                // create the physical file and folder on disk
+                string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{aNewProject.projectRoot}/main.js";
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    // Fix filepaths for Ubuntu & Win
+                    filePath = filePath.Replace(@"/", @"\");
+                }
+                System.IO.File.Create(filePath);
+
+                // don't forget to add the file to the database
+                ProjectFile newProjectFile = new ProjectFile
+                {
+                    projectId = newProject.projectId,
+                    name = "main.js",
+                    type = "javascript"
+                };
+
+                using (PsqlDal db = PsqlDal.Create())
+                {
+                    // TODO: clean the inputs
+                    db.projectFiles.Add(newProjectFile);
+                    changesSaved = db.SaveChanges();
+                }
+
+                return Json(new { success = true, projectId = newProject.projectId });
+            }
+            else
+            {
+                return Json(new { success = false });
+            }
+
         }
 
         [HttpPost]

@@ -5,7 +5,6 @@ var gSelectedProject = "";
 
 $(document).ready(function() {
     //BuildFileTree();
-
     gRotideElement = document.getElementById("textInput");
     gRotide = CodeMirror.fromTextArea(gRotideElement, {
         lineNumbers: true,
@@ -63,6 +62,30 @@ function GetProject(projectName) {
             console.log(data);
         }
     });
+}
+
+function CreateNewProject() {
+    // read the info from the modal
+    var data = JSON.stringify({
+        projectName: $("#inProjectName").val(),
+        projectRoot: $("#inProjectRoot").val(),
+    });
+
+    // post the info to the server
+    $.ajax({
+        type: "POST",
+        url: "/Rotide/CreateNewProject",
+        data: data,
+        contentType: "application/json",
+        success: function (data) {
+            console.log(data);
+
+            // refresh page
+            location.reload();
+        }
+    });
+
+    $("#newProjectModal").modal("dispose");
 }
 
 function BuildFileTree(projectName) {
