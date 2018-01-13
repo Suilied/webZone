@@ -13,18 +13,20 @@ $(document).ready(function() {
     });
     var rotideHeight = $(window).height() - 150; // TODO: find a better way to set the height of the editor window
     gRotide.setSize(-1, rotideHeight);
-    BindContextMenu();
+    //BindContextMenu();
     BindDropDownMenuAction();
 });
 
-
 // Drop down menu handler
-function BindDropDownMenuAction() {
-    $("a.dropdown-item").on("click", function(){
-        gSelectedProject = this.innerHTML;
-        BuildFileTree(gSelectedProject);
-    });
-}
+//function BindDropDownMenuAction() {
+//    $("a.dropdown-item").on("click", function(){
+//        gSelectedProject = this.innerHTML;
+//        BuildFileTree(gSelectedProject);
+//    });
+//}
+
+// TODO: create right-click menu
+
 
 // Right-click context menu handler
 function BindContextMenu(){
@@ -117,7 +119,7 @@ function SaveFile() {
     gRotide.save();
 
     var data = JSON.stringify({
-        Project: gSelectedProject,
+        ProjectName: gSelectedProject,
         FilePath: gLoadedFile,
         FileContents: gRotide.getTextArea().value
     });
