@@ -69,8 +69,9 @@ namespace webZoneCore.Controllers
         public IActionResult GetFileContents(string project, string filepath)
         {
             // string project isn't used anymore. But might get useful later on
+            string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath}" );
 
-            string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath}";
+
             var content = System.IO.File.ReadAllText(filePath);
 
             var retObj = new
@@ -85,12 +86,7 @@ namespace webZoneCore.Controllers
         [HttpPost]
         public IActionResult SaveFileContents([FromBody]RotideFile file)
         {
-            string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{file.FilePath}";
-
-            if( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ) {
-                // Fix filepaths for Ubuntu & Win
-                filePath = filePath.Replace(@"/", @"\");
-            }
+            string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{file.FilePath}" );
 
             try
             {
@@ -125,13 +121,10 @@ namespace webZoneCore.Controllers
             if( changesSaved == 1)
             {
                 // create the physical file and folder on disk
-                string filePath = $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{aNewProject.projectRoot}/main.js";
+                string directoryPath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{aNewProject.projectRoot}" );
+                string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{aNewProject.projectRoot}/main.js" );
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    // Fix filepaths for Ubuntu & Win
-                    filePath = filePath.Replace(@"/", @"\");
-                }
+                System.IO.Directory.CreateDirectory(directoryPath);
                 System.IO.File.Create(filePath);
 
                 // don't forget to add the file to the database
@@ -175,6 +168,16 @@ namespace webZoneCore.Controllers
         public IActionResult Reboot()
         {
             return View("~/Views/Rotide/Reboot.cshtml");
+        }
+
+        private string FixPath(string path)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Fix filepaths for Ubuntu & Win
+                path = path.Replace(@"/", @"\");
+            }
+            return path;
         }
     }
 }
