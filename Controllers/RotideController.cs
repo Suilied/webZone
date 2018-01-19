@@ -17,12 +17,17 @@ namespace webZoneCore.Controllers
     {
         private static string _rootFolder = "wwwroot/projects";
 
-        public IActionResult Index()
+        public IActionResult Index(string project)
         {
             RotideViewModel viewModel = new RotideViewModel();
 
-            using(PsqlDal db = PsqlDal.Create()) {
+            using (PsqlDal db = PsqlDal.Create()) {
                 viewModel.projects = db.projects.ToList();
+
+                if (project != null)
+                {
+                    viewModel.startProject = db.projects.Where(x => x.name == project).FirstOrDefault();
+                }
             }
 
             return View(viewModel);
@@ -100,6 +105,15 @@ namespace webZoneCore.Controllers
         }
 
         [HttpPost]
+        public IActionResult CreateNewFolder([FromBody]RotideFile folderName)
+        {
+            string directoryPath = FixPath($"{Directory.GetCurrentDirectory()}/{_rootFolder}/{folderName}");
+
+            System.IO.Directory.CreateDirectory(directoryPath);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
         public IActionResult CreateNewProject([FromBody]RotideNewProject aNewProject)
         {
             Project newProject = new Project
@@ -113,6 +127,10 @@ namespace webZoneCore.Controllers
             using (PsqlDal db = PsqlDal.Create())
             {
                 // TODO: clean the inputs
+                var existingProject = db.projects.Where(x => x.name == newProject.name).FirstOrDefault();
+                if(existingProject != null)
+                    return Json(new { success = false, error = $"A project with the name: '{newProject.name}'; already exists." });
+
                 db.projects.Add(newProject);
                 changesSaved = db.SaveChanges();
             }

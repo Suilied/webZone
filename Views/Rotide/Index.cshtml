@@ -89,4 +89,15 @@
 
     <!-- Rotide -->
     <script src="~/js/rotide.js"></script>
+
+    <!-- Script with Razor hooks -->
+    <script>
+        let startupProject = "@Model.startProject?.name";
+        console.log(startupProject);
+
+        if (typeof startupProject === "string" && startupProject !== "") {
+            BuildFileTree(startupProject);
+        }
+
+    </script>
 }

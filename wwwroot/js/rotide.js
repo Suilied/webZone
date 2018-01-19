@@ -1,7 +1,7 @@
-﻿var gRotide = {};
-var gLoadedFile = "";
-var gRotideElement = null;
-var gSelectedProject = "";
+﻿let gRotide = {};
+let gLoadedFile = "";
+let gRotideElement = null;
+let gSelectedProject = "";
 
 $(document).ready(function() {
     //BuildFileTree();
@@ -11,36 +11,36 @@ $(document).ready(function() {
         mode: "javascript",
         theme: "monokai",
     });
-    var rotideHeight = $(window).height() - 150; // TODO: find a better way to set the height of the editor window
+    const rotideHeight = $(window).height() - 150; // TODO: find a better way to set the height of the editor window
     gRotide.setSize(-1, rotideHeight);
     //BindContextMenu();
     BindDropDownMenuAction();
 });
 
 // Drop down menu handler
-//function BindDropDownMenuAction() {
-//    $("a.dropdown-item").on("click", function(){
-//        gSelectedProject = this.innerHTML;
-//        BuildFileTree(gSelectedProject);
-//    });
-//}
+function BindDropDownMenuAction() {
+    $("a.dropdown-item").on("click", function(){
+        gSelectedProject = this.innerHTML;
+        BuildFileTree(gSelectedProject);
+    });
+}
 
 // TODO: create right-click menu
 
 
 // Right-click context menu handler
-function BindContextMenu(){
-    //console.log($("li.directory > a"));
-    $("li.directory > a").bind("contextmenu",function(e){
-        e.preventDefault();
-        //console.log(e.pageX + "," + e.pageY);
-        const menuDirObj = $("#ctxMenuDir");
-        menuDirObj.css("left",e.pageX);
-        menuDirObj.css("top",e.pageY);
-        // $("#ctxMenuDir").hide(100);
-        menuDirObj.fadeIn(200,startFocusOut());
-    });
-}
+//function BindContextMenu(){
+//    //console.log($("li.directory > a"));
+//    $("li.directory > a").bind("contextmenu",function(e){
+//        e.preventDefault();
+//        //console.log(e.pageX + "," + e.pageY);
+//        const menuDirObj = $("#ctxMenuDir");
+//        menuDirObj.css("left",e.pageX);
+//        menuDirObj.css("top",e.pageY);
+//        // $("#ctxMenuDir").hide(100);
+//        menuDirObj.fadeIn(200,startFocusOut());
+//    });
+//}
 
 function startFocusOut(){
     $(document).on("click",function(){
@@ -68,7 +68,7 @@ function GetProject(projectName) {
 
 function CreateNewProject() {
     // read the info from the modal
-    var data = JSON.stringify({
+    const data = JSON.stringify({
         projectName: $("#inProjectName").val(),
         projectRoot: $("#inProjectRoot").val(),
     });
@@ -95,7 +95,6 @@ function BuildFileTree(projectName) {
     $(".fileTree").fileTree(
         { script: "/Rotide/GetFiles", root: projectName},
         function(file) {
-            //console.log(file);
             LoadFile(file);
         }
     );
@@ -118,7 +117,7 @@ function LoadFile(file) {
 function SaveFile() {
     gRotide.save();
 
-    var data = JSON.stringify({
+    const data = JSON.stringify({
         ProjectName: gSelectedProject,
         FilePath: gLoadedFile,
         FileContents: gRotide.getTextArea().value
@@ -136,8 +135,8 @@ function SaveFile() {
 }
 
 function GetModeFromExtension(fileName) {
-    var ext = fileName.split('.')[1];
-    var retValue = "";
+    const ext = fileName.split('.')[1];
+    let retValue = "";
 
     switch(ext) {
         case "txt":
@@ -187,7 +186,7 @@ function GetModeFromExtension(fileName) {
 }
 
 function HasValidExtension(fileName) {
-    var ext = fileName.split('.').length === 2 ? fileName.split('.')[1] : "";
+    const ext = fileName.split('.').length === 2 ? fileName.split('.')[1] : "";
     if (ext === "")
         return false;
 
