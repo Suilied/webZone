@@ -93,7 +93,7 @@ function CreateNewProject() {
 function BuildFileTree(projectName) {
     // Build filetree with LoadFile as lmb-click event handler
     $(".fileTree").fileTree(
-        { script: "/Rotide/GetFiles", root: projectName},
+        { script: "/Rotide/GetFiles", root: projectName },
         function(file) {
             LoadFile(file);
         }

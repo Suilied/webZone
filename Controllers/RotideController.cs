@@ -37,15 +37,21 @@ namespace webZoneCore.Controllers
         public virtual ActionResult GetFiles(string dir)
         {
             // dir isn't actually a directory but the name of a project.
+            // when trying to get a subdirectory we must thusly first collect
+            // the project name and then paste the rest on the end.
+            string projectName = dir.Split('/')[0];
+            string subdirectories = dir.Replace(projectName, "");
+            string projectRoot = "";
+
             using(PsqlDal db = PsqlDal.Create()) {
-                string tempString = db.projects.Where( x => x.name == dir).FirstOrDefault()?.rootFolder ?? "/";
-                dir = "/" + tempString + "/";
+                string tempString = db.projects.Where( x => x.name == projectName).FirstOrDefault()?.rootFolder ?? "/";
+                projectRoot = "/" + tempString;
             }
 
             string baseDir = Directory.GetCurrentDirectory();
-            dir = WebUtility.UrlDecode(dir);
+            projectRoot = WebUtility.UrlDecode(projectRoot);
             
-            string realDir = $"{baseDir}/{_rootFolder}{dir}";
+            string realDir = $"{baseDir}/{_rootFolder}{projectRoot}{subdirectories}";
 
             //validate to not go above basedir
             if (!realDir.StartsWith(baseDir))
@@ -73,8 +79,19 @@ namespace webZoneCore.Controllers
 
         public IActionResult GetFileContents(string project, string filepath)
         {
+            // filepath isn't actually a directory but the name of a project.
+            // when trying to get a subdirectory we must thusly first collect
+            // the project name and then paste the rest on the end.
+            string projectName = project.Split('/')[0];
+            string projectRoot = "";
+
+            using (PsqlDal db = PsqlDal.Create())
+            {
+                projectRoot = db.projects.Where(x => x.name == projectName).FirstOrDefault()?.rootFolder ?? "/";
+            }
+
             // string project isn't used anymore. But might get useful later on
-            string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath}" );
+            string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath.Replace(projectName, projectRoot)}" );
 
 
             var content = System.IO.File.ReadAllText(filePath);

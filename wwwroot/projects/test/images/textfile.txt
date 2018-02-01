@@ -1,0 +1,13 @@
+﻿Just testing some things here!
+/*
+using System;
+namespace webZone.wwwroot.projects.test.images
+{
+    public class someimg
+    {
+        public someimg()
+        {
+        }
+    }
+}
+*/

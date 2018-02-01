@@ -20,6 +20,7 @@
     <Folder Include="wwwroot\projects\" />
     <Folder Include="wwwroot\projects\test\" />
     <Folder Include="Views\Impulse\" />
+    <Folder Include="wwwroot\projects\test\images\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Database\Models\ApplicationUser.cs" />
