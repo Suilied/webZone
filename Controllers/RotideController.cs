@@ -39,6 +39,7 @@ namespace webZoneCore.Controllers
             // dir isn't actually a directory but the name of a project.
             // when trying to get a subdirectory we must thusly first collect
             // the project name and then paste the rest on the end.
+            dir = dir + "/";
             string projectName = dir.Split('/')[0];
             string subdirectories = dir.Replace(projectName, "");
             string projectRoot = "";
@@ -82,6 +83,7 @@ namespace webZoneCore.Controllers
             // filepath isn't actually a directory but the name of a project.
             // when trying to get a subdirectory we must thusly first collect
             // the project name and then paste the rest on the end.
+            project = project + "/";
             string projectName = project.Split('/')[0];
             string projectRoot = "";
 
@@ -92,7 +94,6 @@ namespace webZoneCore.Controllers
 
             // string project isn't used anymore. But might get useful later on
             string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath.Replace(projectName, projectRoot)}" );
-
 
             var content = System.IO.File.ReadAllText(filePath);
 
@@ -119,15 +120,6 @@ namespace webZoneCore.Controllers
             {
                 return Json(new { success = false });
             }
-        }
-
-        [HttpPost]
-        public IActionResult CreateNewFolder([FromBody]RotideFile folderName)
-        {
-            string directoryPath = FixPath($"{Directory.GetCurrentDirectory()}/{_rootFolder}/{folderName}");
-
-            System.IO.Directory.CreateDirectory(directoryPath);
-            return Json(new { success = true });
         }
 
         [HttpPost]

@@ -33,6 +33,14 @@
     </div>
 </div>
 
+@* Context menu items *@
+<ul id="contextMenu" class="dropdown-menu" role="menu" style="display:none;">
+    <li><a tabindex="-1" href="#">New folder</a></li>
+    <li><a tabindex="-1" href="#">New file</a></li>
+    <li class="divider"></li>
+    <li><a tabindex="-1" href="#">Delete</a></li>
+</ul>
+
 <div class="container-fluid">
     <div class="row">
         <div class="dropdown">
@@ -42,7 +50,7 @@
             <div class="dropdown-menu" aria-labelledby="ddmProjectSelect">
                 @foreach (var project in Model.projects)
                 {
-                    <a class="dropdown-item">@(project.name)/</a>
+                    <a class="dropdown-item">@(project.name)</a>
                 }
             </div>
         </div>
@@ -98,6 +106,5 @@
         if (typeof startupProject === "string" && startupProject !== "") {
             BuildFileTree(startupProject);
         }
-
     </script>
 }
