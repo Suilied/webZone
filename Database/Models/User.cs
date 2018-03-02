@@ -14,6 +14,6 @@ namespace webZone.Database.Models
         [DataType(DataType.Password)]
         public string password { get; set; }
 
-        public int rememberMe { get; set; }
+        public bool rememberMe { get; set; }
     }
 }

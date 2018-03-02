@@ -3,7 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using webZone.Database;
+using webZone.Database.Models;
 using webZone.Models;
+using webZone.ViewModels;
 
 namespace webZone.Controllers
 {
@@ -14,14 +16,36 @@ namespace webZone.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult CreateNewAccount(){
+            LoginViewModel viewModel = new LoginViewModel();
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult CreateNewAccount( LoginViewModel viewModel ){
             // one-way encrypt PW
             // check if acc name exists in DB
             //  if it does; generate error
             // create new acc
             // generate success viewModel
             // return view
+            using (PsqlDal db = PsqlDal.Create()) {
+                User existingUser = db.users.Where( x => x.username == viewModel.username ).FirstOrDefault();
+                if (existingUser != null){
+                    viewModel.loginError = "This username is already taken";
+                    return View(viewModel);
+                }
+
+                db.users.Add( new User{
+                    username = viewModel.username,
+                    password = viewModel.password,
+                    rememberMe = viewModel.rememberMe
+                });
+
+                db.SaveChanges();
+            }
+
             return View();
         }
 
@@ -35,23 +59,30 @@ namespace webZone.Controllers
         [HttpGet]
         public IActionResult Login(){
             // return login-form viewmodel
-            return View();
+            LoginViewModel viewModel = new LoginViewModel();
+
+            return View( viewModel );
         }
 
         [HttpPost]
-        public IActionResult Login(string postData){
+        public IActionResult Login(LoginViewModel viewModel){
             // one-way encrypt PW
             // check if acc name exists in DB
             // check if PW matches
             // set user as logged in
             // return / redirect to dashboard
 
-            return View();
-        }
+            using (PsqlDal db = PsqlDal.Create())
+            {
+                User existingUser = db.users.Where( x => x.username == viewModel.username ).FirstOrDefault();
+                if (existingUser == null){
+                    viewModel.loginError = $"The user named: '{viewModel.username}' doesn't exist.";
+                    return View(viewModel);
+                }
 
-        public IActionResult Youframe()
-        {
-            ViewData["Message"] = "Your frame!";
+                // TODO: fix the cookies and stuff
+                // return the user to his or her dashboard
+            }
 
             return View();
         }
