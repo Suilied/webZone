@@ -14,12 +14,37 @@ namespace webZone.Controllers
             return View();
         }
 
-        public IActionResult About()
-        {
-            using(PsqlDal db = PsqlDal.Create()){
-                var allprojects = db.projects.FirstOrDefault();
-                Console.WriteLine(allprojects.ToString());
-            }
+        [HttpPost]
+        public IActionResult CreateNewAccount(){
+            // one-way encrypt PW
+            // check if acc name exists in DB
+            //  if it does; generate error
+            // create new acc
+            // generate success viewModel
+            // return view
+            return View();
+        }
+
+        //[AuthenticationMiddleware]
+        public IActionResult Dashboard(){
+            // check if logged in
+            // if not; return error and redirect
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Login(){
+            // return login-form viewmodel
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Login(string postData){
+            // one-way encrypt PW
+            // check if acc name exists in DB
+            // check if PW matches
+            // set user as logged in
+            // return / redirect to dashboard
 
             return View();
         }

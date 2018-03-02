@@ -1,0 +1,73 @@
+﻿@page
+
+@using Microsoft.AspNetCore.Authentication;
+@using Microsoft.AspNetCore.Authentication.Cookies;
+@using System.Security.Claims;
+
+@functions {
+    [BindProperty] // Bind on Post
+    public LogInModel LogInModel { get; set; }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (ModelState.IsValid)
+        {
+            var isValid = true; // TODO Validate the username and the password with your own logic
+            if (!isValid)
+            {
+                ModelState.AddModelError("", "username or password is invalid");
+                return Page();
+            }
+
+            // Create the identity from the user info
+            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, LogInModel.Username));
+            identity.AddClaim(new Claim(ClaimTypes.Name, LogInModel.Username));
+
+            // Authenticate using the identity
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties { IsPersistent = LogInModel.RememberMe });
+
+            return RedirectToPage("Index");
+        }
+
+        return Page();
+    }
+}
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="LogInModel.Username" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="LogInModel.Username" class="form-control" />
+            <span asp-validation-for="LogInModel.Username" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="LogInModel.Password" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="LogInModel.Password" class="form-control" />
+            <span asp-validation-for="LogInModel.Password" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <div class="checkbox">
+                <label asp-for="RememberMe">
+                    <input asp-for="RememberMe" />
+                    @Html.DisplayNameFor(m => m.RememberMe)
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-default">Log In</button>
+        </div>
+    </div>
+</form>

@@ -10,6 +10,7 @@ namespace webZone.Database
 
         public DbSet<Project> projects { get; set; }
         public DbSet<ProjectFile> projectFiles { get; set; }
+        public DbSet<User> users { get; set; }
 
         public PsqlDal(DbContextOptions<PsqlDal> options) : base(options) { _options = options; }
 
@@ -21,6 +22,7 @@ namespace webZone.Database
         {
             builder.Entity<Project>().HasKey(m => m.projectId);
             builder.Entity<ProjectFile>().HasKey(m => m.projectFileId);
+            builder.Entity<User>().HasKey(m => m.userId);
 
             base.OnModelCreating(builder);
         }

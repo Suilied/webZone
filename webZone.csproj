@@ -8,6 +8,7 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Npgsql" Version="3.2.6" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,5 +25,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Database\Models\ApplicationUser.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Views\Home\Login.cshtml">
+      <Generator>RazorTemplatePreprocessor</Generator>
+      <LastGenOutput>Login.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\Home\Login.cs">
+      <DependentUpon>Login.cshtml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
