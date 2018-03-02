@@ -17,13 +17,13 @@ namespace webZone.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateNewAccount(){
+        public IActionResult NewAccount(){
             LoginViewModel viewModel = new LoginViewModel();
             return View(viewModel);
         }
 
         [HttpPost]
-        public IActionResult CreateNewAccount( LoginViewModel viewModel ){
+        public IActionResult NewAccount( LoginViewModel viewModel ){
             // one-way encrypt PW
             // check if acc name exists in DB
             //  if it does; generate error
