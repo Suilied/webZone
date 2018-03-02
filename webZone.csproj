@@ -5,16 +5,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Database\Models\ApplicationUser.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Npgsql" Version="3.2.6" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.1" />
   </ItemGroup>
-
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools">
+      <Version>2.0.0</Version>
+    </DotNetCliToolReference>
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Database\" />
     <Folder Include="Database\Models\" />
@@ -22,19 +25,5 @@
     <Folder Include="wwwroot\projects\test\" />
     <Folder Include="Views\Impulse\" />
     <Folder Include="wwwroot\projects\test\images\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Database\Models\ApplicationUser.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Views\Home\Login.cshtml">
-      <Generator>RazorTemplatePreprocessor</Generator>
-      <LastGenOutput>Login.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Views\Home\Login.cs">
-      <DependentUpon>Login.cshtml</DependentUpon>
-    </Compile>
   </ItemGroup>
 </Project>
