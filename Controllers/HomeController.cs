@@ -6,6 +6,7 @@ using webZone.Database;
 using webZone.Database.Models;
 using webZone.Models;
 using webZone.ViewModels;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace webZone.Controllers
 {
@@ -33,20 +34,43 @@ namespace webZone.Controllers
             using (PsqlDal db = PsqlDal.Create()) {
                 User existingUser = db.users.Where( x => x.username == viewModel.username ).FirstOrDefault();
                 if (existingUser != null){
-                    viewModel.loginError = "This username is already taken";
+                    viewModel.errorMessage = "This username is already taken";
                     return View(viewModel);
                 }
 
+                Random rnd = new Random();
+                Byte[] randomSalt = new byte[16];
+                rnd.NextBytes(randomSalt);
+
+                Byte[] hashedPassword = KeyDerivation.Pbkdf2(
+                    password: viewModel.password,
+                    salt: randomSalt,
+                    prf: KeyDerivationPrf.HMACSHA512,
+                    iterationCount: 1000,
+                    numBytesRequested: 32
+                );
+                string pwToSave = Convert.ToBase64String(hashedPassword);
+                string saltToSave = Convert.ToBase64String(randomSalt);
+
+                // wachtwoord = 
+                // salt       = 
+
+
                 db.users.Add( new User{
                     username = viewModel.username,
-                    password = viewModel.password,
+                    password = pwToSave,
+                    salt = saltToSave,
                     rememberMe = viewModel.rememberMe
                 });
 
                 db.SaveChanges();
             }
 
-            return View();
+            viewModel.username = "";
+            viewModel.password = "";
+            viewModel.rememberMe = false;
+
+            return View(viewModel);
         }
 
         //[AuthenticationMiddleware]
@@ -76,7 +100,7 @@ namespace webZone.Controllers
             {
                 User existingUser = db.users.Where( x => x.username == viewModel.username ).FirstOrDefault();
                 if (existingUser == null){
-                    viewModel.loginError = $"The user named: '{viewModel.username}' doesn't exist.";
+                    viewModel.errorMessage = $"The user named: '{viewModel.username}' doesn't exist.";
                     return View(viewModel);
                 }
 
@@ -84,7 +108,11 @@ namespace webZone.Controllers
                 // return the user to his or her dashboard
             }
 
-            return View();
+            viewModel.username = "";
+            viewModel.password = "";
+            viewModel.rememberMe = false;
+
+            return View(viewModel);
         }
 
         public IActionResult Error()

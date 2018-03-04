@@ -13,6 +13,9 @@
 
         @Html.LabelFor( m => m.password )
         @Html.EditorFor( m => m.password )
+
+        @Html.LabelFor( m => m.rememberMe )
+        @Html.EditorFor( m => m.rememberMe )
         
 <!--        <label for="loginUsername">Username: </label> 
         <input type="text" name="loginUsername" >
@@ -20,5 +23,6 @@
         <input type="password" name="loginPassword" >-->
 
         <button type="submit">Login</button>
+        @Html.AntiForgeryToken()
     </form>
 </div>
