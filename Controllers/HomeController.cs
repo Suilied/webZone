@@ -1,12 +1,14 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using webZone.Database;
 using webZone.Database.Models;
 using webZone.Models;
 using webZone.ViewModels;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using webZone.Utilities;
 
 namespace webZone.Controllers
 {
@@ -14,6 +16,42 @@ namespace webZone.Controllers
     {
         public IActionResult Index()
         {
+            return View();
+        }
+
+        public string Test()
+        {
+            Hasher hasher = new Hasher("salt");
+
+            string code64Salt = hasher.GetSalt();
+            string code64Password = hasher.GetPassword("wachtwoord");
+
+            if (User.Identity.IsAuthenticated)
+                return "user authenticated + test complete!";
+
+            return "test complete";
+        }
+
+        public string TestRandom()
+        {
+            Hasher hasher = new Hasher();
+
+            string code64Salt = hasher.GetSalt();
+            string code64Password = hasher.GetPassword("wachtwoord");
+
+            return "test complete";
+        }
+
+        public IActionResult Dashboard( string account )
+        {
+            if (!User.Identity.IsAuthenticated)
+                return RedirectToAction("Login");
+
+            if (account == null )
+                return RedirectToAction($"Dashboard?account={User.Identity.Name}");
+
+            // Load dashboard stuff according to the users' account
+
             return View();
         }
 
@@ -25,12 +63,7 @@ namespace webZone.Controllers
 
         [HttpPost]
         public IActionResult NewAccount( LoginViewModel viewModel ){
-            // one-way encrypt PW
-            // check if acc name exists in DB
-            //  if it does; generate error
-            // create new acc
-            // generate success viewModel
-            // return view
+
             using (PsqlDal db = PsqlDal.Create()) {
                 User existingUser = db.users.Where( x => x.username == viewModel.username ).FirstOrDefault();
                 if (existingUser != null){
@@ -38,28 +71,12 @@ namespace webZone.Controllers
                     return View(viewModel);
                 }
 
-                Random rnd = new Random();
-                Byte[] randomSalt = new byte[16];
-                rnd.NextBytes(randomSalt);
-
-                Byte[] hashedPassword = KeyDerivation.Pbkdf2(
-                    password: viewModel.password,
-                    salt: randomSalt,
-                    prf: KeyDerivationPrf.HMACSHA512,
-                    iterationCount: 1000,
-                    numBytesRequested: 32
-                );
-                string pwToSave = Convert.ToBase64String(hashedPassword);
-                string saltToSave = Convert.ToBase64String(randomSalt);
-
-                // wachtwoord = 
-                // salt       = 
-
-
+                Hasher hasher = new Hasher();
+                
                 db.users.Add( new User{
                     username = viewModel.username,
-                    password = pwToSave,
-                    salt = saltToSave,
+                    password = hasher.GetPassword( viewModel.password ),
+                    salt = hasher.GetSalt(),
                     rememberMe = viewModel.rememberMe
                 });
 
@@ -73,13 +90,6 @@ namespace webZone.Controllers
             return View(viewModel);
         }
 
-        //[AuthenticationMiddleware]
-        public IActionResult Dashboard(){
-            // check if logged in
-            // if not; return error and redirect
-            return View();
-        }
-
         [HttpGet]
         public IActionResult Login(){
             // return login-form viewmodel
@@ -90,11 +100,6 @@ namespace webZone.Controllers
 
         [HttpPost]
         public IActionResult Login(LoginViewModel viewModel){
-            // one-way encrypt PW
-            // check if acc name exists in DB
-            // check if PW matches
-            // set user as logged in
-            // return / redirect to dashboard
 
             using (PsqlDal db = PsqlDal.Create())
             {
@@ -104,8 +109,18 @@ namespace webZone.Controllers
                     return View(viewModel);
                 }
 
-                // TODO: fix the cookies and stuff
-                // return the user to his or her dashboard
+                Hasher hasher = new Hasher(existingUser.salt);
+                if (hasher.GetPassword(viewModel.password) != existingUser.password)
+                {
+                    viewModel.errorMessage = $"Invalid password!";
+                    return View(viewModel);
+                }
+
+                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+                identity.AddClaim(new Claim( ClaimTypes.NameIdentifier, viewModel.username ));
+                identity.AddClaim(new Claim( ClaimTypes.Name, viewModel.username ));
+                var principal = new ClaimsPrincipal(identity);
+                HttpContext.SignInAsync( CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties { IsPersistent = viewModel.rememberMe } );
             }
 
             viewModel.username = "";
@@ -113,6 +128,12 @@ namespace webZone.Controllers
             viewModel.rememberMe = false;
 
             return View(viewModel);
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.SignOutAsync( CookieAuthenticationDefaults.AuthenticationScheme );
+            return RedirectToAction("Login");
         }
 
         public IActionResult Error()

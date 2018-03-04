@@ -30,7 +30,7 @@ namespace webZone
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            }).AddCookie();
+            }).AddCookie( options => { options.LoginPath = "/Home/Login"; } );
 
             services.AddMvc();
         }
