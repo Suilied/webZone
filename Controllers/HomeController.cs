@@ -50,9 +50,20 @@ namespace webZone.Controllers
             if (account == null )
                 return RedirectToAction($"Dashboard?account={User.Identity.Name}");
 
-            // Load dashboard stuff according to the users' account
+            User existingUser = null;
+            using (PsqlDal db = PsqlDal.Create())
+            {
+                existingUser = db.users.Where(x => x.username == account).FirstOrDefault();
+            }
 
-            return View();
+            // TODO: Dashboard info:
+            // list of user info, name, email, etc.
+            // list of user projects
+
+            LoginViewModel viewModel = new LoginViewModel();
+            viewModel.username = existingUser.username;
+
+            return View(viewModel);
         }
 
         [HttpGet]
