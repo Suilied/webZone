@@ -34,30 +34,6 @@ function GetProject(projectName) {
     });
 }
 
-function CreateNewProject() {
-    // read the info from the modal
-    const data = JSON.stringify({
-        projectName: $("#inProjectName").val(),
-        projectRoot: $("#inProjectRoot").val(),
-    });
-
-    // post the info to the server
-    $.ajax({
-        type: "POST",
-        url: "/Rotide/CreateNewProject",
-        data: data,
-        contentType: "application/json",
-        success: function (data) {
-            console.log(data);
-
-            // refresh page
-            location.reload();
-        }
-    });
-
-    $("#newProjectModal").modal("dispose");
-}
-
 function LoadFile(file) {
     if (!HasValidExtension(file))
         return;

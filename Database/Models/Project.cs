@@ -12,5 +12,6 @@ namespace webZone.Database.Models
 
         public string rootFolder { get; set; }
 
+        public int userId { get; set; }
     }
 }

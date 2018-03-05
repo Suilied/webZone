@@ -9,11 +9,15 @@ using webZone.Database.Models;
 using webZone.Models;
 using webZone.ViewModels;
 using webZone.Utilities;
+using System.IO;
 
 namespace webZone.Controllers
 {
     public class HomeController : Controller
     {
+        // TODO: delegate this to either config file or DB config table
+        private static string _rootFolder = "wwwroot/projects";
+
         public IActionResult Index()
         {
             return View();
@@ -47,23 +51,112 @@ namespace webZone.Controllers
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Login");
 
+            // it's called account because its a human readable string that relates to 
+            // the chose account and is visible in the address bar
+            // TODO: if we find a cleaner way to do this implement it.
             if (account == null )
-                return RedirectToAction($"Dashboard?account={User.Identity.Name}");
+                return RedirectToAction("Dashboard", new { account = User.Identity.Name });
+
+            using (PsqlDal db = PsqlDal.Create())
+            {
+                User existingUser = db.users.Where(x => x.username == account).FirstOrDefault();
+
+                DashboardViewModel viewModel = new DashboardViewModel();
+                viewModel.username = existingUser.username;
+                viewModel.projects = db.projects.Where(x => x.userId == existingUser.userId).ToList();
+
+                return View(viewModel);
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult CreateNewProject([FromBody]Project project)
+        {
+            if (!User.Identity.IsAuthenticated)
+                return RedirectToAction("Login");
 
             User existingUser = null;
             using (PsqlDal db = PsqlDal.Create())
             {
-                existingUser = db.users.Where(x => x.username == account).FirstOrDefault();
+                existingUser = db.users.Where(x => x.username == User.Identity.Name).FirstOrDefault();
             }
 
-            // TODO: Dashboard info:
-            // list of user info, name, email, etc.
-            // list of user projects
+            Project newProject = new Project
+            {
+                userId = existingUser.userId,
+                name = project.name,
+                rootFolder = project.rootFolder
+            };
 
-            LoginViewModel viewModel = new LoginViewModel();
-            viewModel.username = existingUser.username;
+            int changesSaved = 0;
 
-            return View(viewModel);
+            using (PsqlDal db = PsqlDal.Create())
+            {
+                // TODO: clean the inputs
+                var existingProject = db.projects.Where(x => x.name == newProject.name).FirstOrDefault();
+                if (existingProject != null)
+                    return Json(new { success = false, error = $"A project with the name: '{newProject.name}'; already exists." });
+
+                db.projects.Add(newProject);
+                changesSaved = db.SaveChanges();
+            }
+
+            // check if our write was successful
+            if (changesSaved == 1)
+            {
+                // create the physical file and folder on disk
+                string directoryPath = CrossPath.FixPath($"{Directory.GetCurrentDirectory()}/{_rootFolder}/{project.rootFolder}");
+                string filePath = CrossPath.FixPath($"{Directory.GetCurrentDirectory()}/{_rootFolder}/{project.rootFolder}/main.js");
+
+                System.IO.Directory.CreateDirectory(directoryPath);
+                System.IO.File.Create(filePath);
+
+                // don't forget to add the file to the database
+                ProjectFile newProjectFile = new ProjectFile
+                {
+                    projectId = newProject.projectId,
+                    name = "main.js",
+                    type = "javascript"
+                };
+
+                using (PsqlDal db = PsqlDal.Create())
+                {
+                    // TODO: clean the inputs
+                    db.projectFiles.Add(newProjectFile);
+                    changesSaved = db.SaveChanges();
+                }
+
+                return Json(new { success = true, projectId = newProject.projectId });
+            }
+            else
+            {
+                return Json(new { success = false });
+            }
+
+        }
+
+        [HttpPost]
+        public JsonResult EditProject([FromBody]Project project)
+        {
+            if (!User.Identity.IsAuthenticated)
+                return new JsonResult(new { message = "User isn't logged in" });
+
+            using (PsqlDal db = PsqlDal.Create())
+            {
+                Project existingProject = db.projects.Find(project.projectId);
+
+                if (existingProject == null)
+                    return new JsonResult(new { message = "Error, project doesn't exist." });
+
+                existingProject.name = project.name;
+                existingProject.rootFolder = project.rootFolder;
+
+                db.Entry(existingProject).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                db.SaveChanges();
+            }
+
+            return new JsonResult(new { message = "Success" });
         }
 
         [HttpGet]
@@ -112,6 +205,8 @@ namespace webZone.Controllers
         [HttpPost]
         public IActionResult Login(LoginViewModel viewModel){
 
+            bool success = false;
+
             using (PsqlDal db = PsqlDal.Create())
             {
                 User existingUser = db.users.Where( x => x.username == viewModel.username ).FirstOrDefault();
@@ -132,6 +227,13 @@ namespace webZone.Controllers
                 identity.AddClaim(new Claim( ClaimTypes.Name, viewModel.username ));
                 var principal = new ClaimsPrincipal(identity);
                 HttpContext.SignInAsync( CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties { IsPersistent = viewModel.rememberMe } );
+
+                success = true;
+            }
+
+            if( success)
+            {
+                return RedirectToAction("Dashboard", new { account = User.Identity.Name} );
             }
 
             viewModel.username = "";

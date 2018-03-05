@@ -1,7 +1,57 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model webZone.ViewModels.LoginViewModel
+@using webZone.Database.Models
+@model webZone.ViewModels.DashboardViewModel
+@* New Project Modal *@
+<div class="modal fade" id="newProjectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create new Project</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="inNewProjectName">Project name:</label>
+                <input id="inNewProjectName" type="text" class="form-control" />
+                <label for="inNewProjectRoot">root:</label>
+                <input id="inNewProjectRoot" type="text" class="form-control" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="CreateNewProject()">Save changes</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* Edit Project Modal *@
+<div class="modal fade" id="editProjectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Project</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="inEditProjectName">Project name:</label>
+                <input id="inEditProjectName" type="text" class="form-control" />
+                <label for="inEditProjectRoot">root:</label>
+                <input id="inEditProjectRoot" type="text" class="form-control" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="EditProject()">Save changes</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <div class="container"><h1>Dashboard</h1></div>
 <div class="container">
@@ -9,5 +59,96 @@
         <div class="col col-8">
             <h1>Hello @Model.username</h1>
         </div>
+        @if (Model.projects.Count == 0)
+        {
+            <div class="row col-8">
+                <p>No projects here...</p>
+            </div>
+        }
+        else
+        {
+            foreach (Project item in Model.projects)
+            {
+            <div class="row col-8" id="project-@item.projectId">
+                <p>Project name: @item.name</p>
+                <p>Project ID: @item.projectId</p>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editProjectModal" onclick="setProjectId(@item.projectId, '@item.name', '@item.rootFolder')">
+                    Edit Project
+                </button>
+
+                <button>Launch Impulse</button>
+                <button>Launch Rotide</button>
+            </div>
+
+            }
+
+        }
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newProjectModal">
+            Create new Project
+        </button>
     </div>
 </div>
+
+<script>
+    var selectedProject = -1;
+
+    function setProjectId(id, name, root) {
+        console.log("should be a number --", id);
+        $("#inEditProjectName").val(name);
+        $("#inEditProjectRoot").val(root);
+        selectedProject = id;
+    }
+
+    function CreateNewProject() {
+        // read the info from the modal
+        const data = JSON.stringify({
+            projectName: $("#inNewProjectName").val(),
+            projectRoot: $("#inNewProjectRoot").val(),
+        });
+
+        // post the info to the server
+        $.ajax({
+            type: "POST",
+            url: "/Home/CreateNewProject",
+            data: data,
+            contentType: "application/json",
+            success: function (data) {
+                console.log(data);
+
+                // refresh page
+                location.reload();
+            }
+        });
+
+        $("#newProjectModal").modal("dispose");
+    }
+
+    function EditProject() {
+        // check if a project is selected
+        if (selectedProject === -1)
+            return;
+
+        // read the info from the modal
+        const data = JSON.stringify({
+            projectId: selectedProject,
+            name: $("#inEditProjectName").val(),
+            rootFolder: $("#inEditProjectRoot").val(),
+        });
+
+        // post the info to the server
+        $.ajax({
+            type: "POST",
+            url: "/Home/EditProject",
+            data: data,
+            contentType: "application/json",
+            success: function (data) {
+                console.log(data);
+
+                // refresh page
+                location.reload();
+            }
+        });
+
+        $("#editProjectModal").modal("dispose");
+    }
+</script>

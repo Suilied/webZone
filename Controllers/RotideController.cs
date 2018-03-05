@@ -3,18 +3,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using webZone.ViewModels;
 using System.Net;
 using System.Text;
 using webZone.Models;
 using webZone.Database.Models;
 using webZone.Database;
+using webZone.Utilities;
 
 namespace webZoneCore.Controllers
 {
     public class RotideController : Controller
     {
+        // TODO: delegate this to either config file or DB config table
         private static string _rootFolder = "wwwroot/projects";
 
         public IActionResult Index(string project)
@@ -93,7 +94,7 @@ namespace webZoneCore.Controllers
             }
 
             // string project isn't used anymore. But might get useful later on
-            string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath.Replace(projectName, projectRoot)}" );
+            string filePath = CrossPath.FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{filepath.Replace(projectName, projectRoot)}" );
 
             var content = System.IO.File.ReadAllText(filePath);
 
@@ -109,7 +110,7 @@ namespace webZoneCore.Controllers
         [HttpPost]
         public IActionResult SaveFileContents([FromBody]RotideFile file)
         {
-            string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{file.FilePath}" );
+            string filePath = CrossPath.FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{file.FilePath}" );
 
             try
             {
@@ -120,62 +121,6 @@ namespace webZoneCore.Controllers
             {
                 return Json(new { success = false });
             }
-        }
-
-        [HttpPost]
-        public IActionResult CreateNewProject([FromBody]RotideNewProject aNewProject)
-        {
-            Project newProject = new Project
-            {
-                name = aNewProject.projectName,
-                rootFolder = aNewProject.projectRoot
-            };
-
-            int changesSaved = 0;
-
-            using (PsqlDal db = PsqlDal.Create())
-            {
-                // TODO: clean the inputs
-                var existingProject = db.projects.Where(x => x.name == newProject.name).FirstOrDefault();
-                if(existingProject != null)
-                    return Json(new { success = false, error = $"A project with the name: '{newProject.name}'; already exists." });
-
-                db.projects.Add(newProject);
-                changesSaved = db.SaveChanges();
-            }
-
-            // check if our write was successful
-            if( changesSaved == 1)
-            {
-                // create the physical file and folder on disk
-                string directoryPath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{aNewProject.projectRoot}" );
-                string filePath = FixPath( $"{Directory.GetCurrentDirectory()}/{_rootFolder}/{aNewProject.projectRoot}/main.js" );
-
-                System.IO.Directory.CreateDirectory(directoryPath);
-                System.IO.File.Create(filePath);
-
-                // don't forget to add the file to the database
-                ProjectFile newProjectFile = new ProjectFile
-                {
-                    projectId = newProject.projectId,
-                    name = "main.js",
-                    type = "javascript"
-                };
-
-                using (PsqlDal db = PsqlDal.Create())
-                {
-                    // TODO: clean the inputs
-                    db.projectFiles.Add(newProjectFile);
-                    changesSaved = db.SaveChanges();
-                }
-
-                return Json(new { success = true, projectId = newProject.projectId });
-            }
-            else
-            {
-                return Json(new { success = false });
-            }
-
         }
 
         [HttpPost]
@@ -197,14 +142,5 @@ namespace webZoneCore.Controllers
             return View("~/Views/Rotide/Reboot.cshtml");
         }
 
-        private string FixPath(string path)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // Fix filepaths for Ubuntu & Win
-                path = path.Replace(@"/", @"\");
-            }
-            return path;
-        }
     }
 }
