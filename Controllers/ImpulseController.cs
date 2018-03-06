@@ -8,34 +8,34 @@ namespace webZone.Controllers
     public class ImpulseController : Controller
     {
         // GET: /<controller>/
-        public IActionResult Index( string projectName )
+        public IActionResult Index( string projectId )
         {
-            if (projectName == null) {
-                projectName = Global.Configuration["Impulse:DefaultProject"];
-            }
-
             ImpulseViewModel viewModel = new ImpulseViewModel();
 
             using (PsqlDal db = PsqlDal.Create())
             {
-                viewModel.project = db.projects.Where(x => x.name == projectName).FirstOrDefault();
+                if (projectId == null)
+                    viewModel.project = db.projects.Where(x => x.name == Global.Configuration["Impulse:DefaultProject"]).FirstOrDefault();
+                else
+                    viewModel.project = db.projects.Find(projectId);
+                
                 viewModel.projectFiles = db.projectFiles.Where(x => x.projectId == viewModel.project.projectId).ToList();
             }
 
             return View(viewModel);
         }
 
-        public IActionResult Debug( string projectName )
+        public IActionResult Debug( string projectId )
         {
-            if (projectName == null) {
-                projectName = Global.Configuration["Impulse:DefaultProject"];
-            }
-
             ImpulseViewModel viewModel = new ImpulseViewModel();
 
             using(PsqlDal db = PsqlDal.Create())
             {
-                viewModel.project = db.projects.Where(x => x.name == projectName).FirstOrDefault();
+                if (projectId == null)
+                    viewModel.project = db.projects.Where(x => x.name == Global.Configuration["Impulse:DefaultProject"]).FirstOrDefault();
+                else
+                    viewModel.project = db.projects.Find(projectId);
+                
                 viewModel.projectFiles = db.projectFiles.Where(x => x.projectId == viewModel.project.projectId).ToList();
             }
 

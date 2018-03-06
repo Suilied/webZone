@@ -18,16 +18,15 @@ namespace webZoneCore.Controllers
         // TODO: delegate this to either config file or DB config table
         private static string _rootFolder = "wwwroot/projects";
 
-        public IActionResult Index(string project)
+        public IActionResult Index(string projectId)
         {
             RotideViewModel viewModel = new RotideViewModel();
 
             using (PsqlDal db = PsqlDal.Create()) {
-                viewModel.projects = db.projects.ToList();
 
-                if (project != null)
+                if (projectId != null)
                 {
-                    viewModel.startProject = db.projects.Where(x => x.name == project).FirstOrDefault();
+                    viewModel.startProject = db.projects.Find(projectId);
                 }
             }
 
