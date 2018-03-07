@@ -10,6 +10,7 @@ using webZone.Models;
 using webZone.ViewModels;
 using webZone.Utilities;
 using System.IO;
+using System;
 
 namespace webZone.Controllers
 {
@@ -86,7 +87,7 @@ namespace webZone.Controllers
             {
                 userId = existingUser.userId,
                 name = project.name,
-                rootFolder = project.rootFolder
+                rootFolder = Guid.NewGuid().ToString()
             };
 
             int changesSaved = 0;
@@ -106,8 +107,8 @@ namespace webZone.Controllers
             if (changesSaved == 1)
             {
                 // create the physical file and folder on disk
-                string directoryPath = CrossPath.FixPath($"{Directory.GetCurrentDirectory()}/{_rootFolder}/{project.rootFolder}");
-                string filePath = CrossPath.FixPath($"{Directory.GetCurrentDirectory()}/{_rootFolder}/{project.rootFolder}/main.js");
+                string directoryPath = CrossPath.FixPath($"{Directory.GetCurrentDirectory()}/{_rootFolder}/{newProject.rootFolder}");
+                string filePath = CrossPath.FixPath($"{Directory.GetCurrentDirectory()}/{_rootFolder}/{newProject.rootFolder}/main.js");
 
                 System.IO.Directory.CreateDirectory(directoryPath);
                 System.IO.File.Create(filePath);
@@ -150,7 +151,6 @@ namespace webZone.Controllers
                     return new JsonResult(new { message = "Error, project doesn't exist." });
 
                 existingProject.name = project.name;
-                existingProject.rootFolder = project.rootFolder;
 
                 db.Entry(existingProject).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 db.SaveChanges();
@@ -172,7 +172,7 @@ namespace webZone.Controllers
                 User existingUser = db.users.Where( x => x.username == viewModel.username ).FirstOrDefault();
                 if (existingUser != null){
                     viewModel.errorMessage = "This username is already taken";
-                    return View(viewModel);
+                    return View(new LoginViewModel());
                 }
 
                 Hasher hasher = new Hasher();
@@ -187,11 +187,14 @@ namespace webZone.Controllers
                 db.SaveChanges();
             }
 
-            viewModel.username = "";
-            viewModel.password = "";
-            viewModel.rememberMe = false;
+            // Account creation succesfull, now lets log our user in
+            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, viewModel.username));
+            identity.AddClaim(new Claim(ClaimTypes.Name, viewModel.username));
+            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties { IsPersistent = viewModel.rememberMe });
 
-            return View(viewModel);
+            return RedirectToAction("Dashboard", new { account = identity.Name });
         }
 
         [HttpGet]
@@ -212,14 +215,14 @@ namespace webZone.Controllers
                 User existingUser = db.users.Where( x => x.username == viewModel.username ).FirstOrDefault();
                 if (existingUser == null){
                     viewModel.errorMessage = $"The user named: '{viewModel.username}' doesn't exist.";
-                    return View(viewModel);
+                    return View(new LoginViewModel());
                 }
 
                 Hasher hasher = new Hasher(existingUser.salt);
                 if (hasher.GetPassword(viewModel.password) != existingUser.password)
                 {
                     viewModel.errorMessage = $"Invalid password!";
-                    return View(viewModel);
+                    return View(new LoginViewModel());
                 }
 
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
@@ -236,11 +239,7 @@ namespace webZone.Controllers
                 return RedirectToAction("Dashboard", new { account = User.Identity.Name} );
             }
 
-            viewModel.username = "";
-            viewModel.password = "";
-            viewModel.rememberMe = false;
-
-            return View(viewModel);
+            return View(new LoginViewModel());
         }
 
         public IActionResult Logout()

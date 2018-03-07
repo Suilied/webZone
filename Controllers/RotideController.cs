@@ -22,12 +22,12 @@ namespace webZoneCore.Controllers
         {
             RotideViewModel viewModel = new RotideViewModel();
 
-            using (PsqlDal db = PsqlDal.Create()) {
+            int projectInt;
+            if( !int.TryParse(projectId, out projectInt) )
+                return View(viewModel);
 
-                if (projectId != null)
-                {
-                    viewModel.startProject = db.projects.Find(projectId);
-                }
+            using (PsqlDal db = PsqlDal.Create()) {
+                viewModel.startProject = db.projects.Find(projectInt);
             }
 
             return View(viewModel);

@@ -115,8 +115,7 @@
     function CreateNewProject() {
         // read the info from the modal
         const data = JSON.stringify({
-            projectName: $("#inNewProjectName").val(),
-            projectRoot: $("#inNewProjectRoot").val(),
+            name: $("#inNewProjectName").val(),
         });
 
         // post the info to the server
