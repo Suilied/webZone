@@ -4,25 +4,23 @@
 
 @model webZone.ViewModels.ImpulseViewModel
 
-@if(Model == null){
+@if (Model == null)
+{
     <h1>No project selected.</h1>
 }
-else{
-    <script src="~/phaser/phaser.js"></script>
-    foreach(var file in Model.projectFiles){
-        if(file.type == "javascript"){
-            <script src="~/projects/@(Model.project.rootFolder)/@(file.name)"></script>
-        }
-    }
-}
+else
+{
+    <script>
+        // set the global project folder variable
+        __ProjectFolder = "../projects/@Model.project.rootFolder/";
+    </script>
 
-@*
-@section scripts {
     <script src="~/phaser/phaser.js"></script>
-    @foreach(var file in Model.projectFiles){
-        if(file.type == "javascript"){
-            <script src="~/projects/@(Model.project.rootFolder)/@(file.name)"></script>
+    foreach (var file in Model.projectFiles)
+    {
+        if (file.type == "javascript")
+        {
+            <script type="module" src="~/projects/@(Model.project.rootFolder)/@(file.name)" asp-append-version="true"></script>
         }
     }
 }
-*@
